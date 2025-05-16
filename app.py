@@ -6,6 +6,61 @@ import zipfile
 
 st.set_page_config(page_title="🎧 YT MP3 Downloader", layout="centered")
 
+# --- Custom Styling ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+    html, body, [class*="css"] {
+        background: linear-gradient(135deg, #1c1c1c, #0f0f0f);
+        color: #ffffff;
+        font-family: 'Poppins', sans-serif;
+    }
+    .stTextArea textarea {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-radius: 10px !important;
+        border: 1px solid #444 !important;
+    }
+    .stButton>button {
+        background: linear-gradient(to right, #8e2de2, #4a00e0);
+        color: white;
+        border-radius: 8px;
+        padding: 0.6em 1.2em;
+        font-weight: bold;
+        border: none;
+        transition: background 0.3s ease-in-out;
+    }
+    .stButton>button:hover {
+        background: linear-gradient(to right, #4a00e0, #8e2de2);
+    }
+    .stDownloadButton>button {
+        background: linear-gradient(to right, #00b4db, #0083b0);
+        color: white;
+        border-radius: 8px;
+        padding: 0.6em 1.2em;
+        font-weight: bold;
+        border: none;
+    }
+    .glass-box {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 2rem;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 def download_audio_to_temp(youtube_url, temp_dir, progress_placeholder, speed_placeholder, title_placeholder):
     output_template = os.path.join(temp_dir, '%(title)s.%(ext)s')
 
@@ -17,9 +72,9 @@ def download_audio_to_temp(youtube_url, temp_dir, progress_placeholder, speed_pl
             downloaded_title = d.get('filename', '').split('/')[-1].replace('.webm', '').replace('.m4a', '')
             try:
                 progress_placeholder.progress(float(percent)/100)
-                speed_placeholder.markdown(f"📶 <b>Speed:</b> {speed_mbps:.2f} Mbps", unsafe_allow_html=True)
+                speed_placeholder.text(f"📶 Speed: {speed_mbps:.2f} Mbps")
                 if downloaded_title:
-                    title_placeholder.markdown(f"🎵 <b>Downloading:</b> {downloaded_title}", unsafe_allow_html=True)
+                    title_placeholder.text(f"🎵 Downloading: {downloaded_title}")
             except:
                 pass
 
@@ -55,81 +110,21 @@ def convert_speed_to_mbps(speed_str):
         return 0.0
     return 0.0
 
-# --- Custom Styling ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
-
-    html, body, [class*="css"] {
-        background: #0d0c1d;
-        color: #f5f5f5;
-        font-family: 'Outfit', sans-serif;
-    }
-
-    .stTextArea textarea {
-        background-color: #1e1e2f;
-        color: #fff;
-        border: 1px solid #444;
-        border-radius: 12px;
-    }
-
-    .stButton>button {
-        background: linear-gradient(135deg, #6e34d2, #9b59b6);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 0.7em 1.5em;
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #9b59b6, #be63f9);
-        transition: 0.3s ease;
-    }
-
-    .stDownloadButton>button {
-        background: linear-gradient(135deg, #00c6ff, #0072ff);
-        color: white;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 0.7em 1.5em;
-    }
-
-    .glass-box {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        padding: 2rem;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 1rem;
-        box-shadow: 0 0 20px rgba(155, 89, 182, 0.2);
-    }
-
-    h1 {
-        color: #e1bfff;
-        font-weight: 700;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- UI Layout ---
-st.markdown("<h1 style='text-align: center;'>🎶 YouTube MP3 Batch Downloader</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🎧 YouTube MP3 Batch Downloader</h1>", unsafe_allow_html=True)
 st.markdown("<div class='glass-box'>", unsafe_allow_html=True)
 
 urls_text = st.text_area(
-    "🎥 Enter YouTube video links (one per line):",
-    placeholder="https://youtube.com/watch?v=video1\nhttps://youtube.com/watch?v=video2",
+    "📥 Paste YouTube URLs (1 per line)",
+    placeholder="https://www.youtube.com/watch?v=abc123\nhttps://www.youtube.com/watch?v=xyz456",
     height=200
 )
 
-if st.button("🚀 Start Batch Download"):
+if st.button("🚀 Download All as ZIP"):
     urls = [url.strip() for url in urls_text.splitlines() if url.strip()]
     if not urls:
-        st.warning("⚠️ Please provide at least one YouTube link.")
+        st.warning("⚠️ Please enter at least one valid YouTube URL.")
     else:
-        with st.spinner("🔄 Downloading & converting..."):
+        with st.spinner("🛠️ Preparing to download..."):
             with tempfile.TemporaryDirectory() as temp_dir:
                 mp3_files = []
                 errors = []
@@ -144,12 +139,12 @@ if st.button("🚀 Start Batch Download"):
                         mp3_path = download_audio_to_temp(url, temp_dir, progress_placeholder, speed_placeholder, title_placeholder)
                         mp3_files.append(mp3_path)
                         progress_placeholder.progress(100)
-                        speed_placeholder.markdown("✅ <b>Completed</b>", unsafe_allow_html=True)
+                        speed_placeholder.text("✅ Done")
                     except Exception as e:
                         errors.append(f"❌ {url}: {str(e)}")
 
                 if mp3_files:
-                    zip_path = os.path.join(temp_dir, "YouTube_MP3s.zip")
+                    zip_path = os.path.join(temp_dir, "downloads.zip")
                     with zipfile.ZipFile(zip_path, 'w') as zipf:
                         for mp3_file in mp3_files:
                             zipf.write(mp3_file, os.path.basename(mp3_file))
@@ -157,18 +152,19 @@ if st.button("🚀 Start Batch Download"):
                     with open(zip_path, "rb") as f:
                         zip_data = f.read()
 
-                    st.success(f"✅ {len(mp3_files)} songs downloaded successfully!")
+                    st.success(f"✅ Downloaded {len(mp3_files)} files successfully!")
                     st.download_button(
-                        label="📦 Download All MP3s as ZIP",
+                        label="📦 Download All (ZIP)",
                         data=zip_data,
                         file_name="YouTube_MP3s.zip",
                         mime="application/zip"
                     )
 
                 if errors:
-                    st.error("⚠️ Some downloads failed:")
+                    st.error("⚠️ Some files failed:")
                     for err in errors:
                         st.write(err)
 
 st.markdown("</div>", unsafe_allow_html=True)
-st.caption("🎧 Built with ❤️ using Streamlit + yt-dlp + FFmpeg")
+
+st.caption("Made with ❤️ using Streamlit & yt-dlp")
