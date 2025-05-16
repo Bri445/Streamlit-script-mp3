@@ -1,2 +1,2 @@
 streamlit
-yt-dlp==2025.05.15
+yt-dlp
